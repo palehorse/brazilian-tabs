@@ -124,7 +124,7 @@
 
 	$.fn.braziliantabs = function(params) {
 		if (typeof params === 'undefined') {
-			return false;
+			params = {};
 		}
 		_this = $(this);
 		$.extend(defaults, params);
