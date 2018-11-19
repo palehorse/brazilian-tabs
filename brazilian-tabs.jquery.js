@@ -5,7 +5,7 @@
 		factory(jQuery);
 	}
 })(function( $ ) {
-	var _this, border_width = 1, border_color = '#adadad', defaults = {}, duration = 300, selectId,
+	var _this, border_width = 1, border_color = '#adadad', defaults = {}, duration = 300,
 		_initUl = function(ul) {
 			ul.css({
 				'list-style': 'none', 
@@ -40,7 +40,9 @@
 				e.preventDefault();
 				e.stopPropagation();
 				selectLi.call(null, item);
-				unselectLi.call(null, li.siblings('li'));
+				li.siblings('li').each(function() {
+					unselectLi.call(null, $(this));
+				});
 			});
 		},
 		_init = function() {
@@ -58,7 +60,6 @@
 			selectLi(_this.find('li.brazilian-item:first'));
 		},
 		selectLi = function(item) {
-			selectId = item.attr('id');
 			item.css({
 				'height': item.css('height') + 1,
 				'margin-bottom': -border_width,
@@ -77,7 +78,7 @@
 					defaults.onItemSelect.call(null, item, content);
 				}
 			} else {
-				showContent.call();
+				showContent.call(null, item.attr('id'));
 			}
 		},
 		unselectLi = function(item) {
@@ -88,38 +89,34 @@
 			});
 
 			if (typeof defaults.onItemUnselect === 'function') {
-				var content;
-				if (!$('.brazilian-item-content[data-brazilian-item-id=' + item.attr('id') + ']').length) {
-					content = $('<div class="brazilian-item-content" data-brazilian-item-id="' + item.attr('id') + '"></div>');
-					content.hide().insertAfter(_this);
-				} else {
-					content = $('.brazilian-item-content[data-brazilian-item-id=' + item.attr('id') + ']');
-				}
+				var content = $('.brazilian-item-content[data-brazilian-item-id=' + item.attr('id') + ']');
 				defaults.onItemUnselect.call(null, item, content);
 			} else {
-				hideContent.call();
+				hideContent.call(null, item.attr('id'));
 			}
 		},
-		showContent = function() {
+		showContent = function(id) {
 			if (typeof defaults.show == 'string') {
 				switch (defaults.show) {
 					case 'fade':
-						$('.brazilian-item-content[data-brazilian-item-id=' + selectId + ']').fadeIn(duration);
+						$('.brazilian-item-content[data-brazilian-item-id=' + id + ']').fadeIn(duration);
 						break;
 					default:
-						$('.brazilian-item-content[data-brazilian-item-id=' + selectId + ']').show();
+						$('.brazilian-item-content[data-brazilian-item-id=' + id + ']').show();
 				}
 			} else {
-				$('.brazilian-item-content[data-brazilian-item-id=' + selectId + ']').show();
+				$('.brazilian-item-content[data-brazilian-item-id=' + id + ']').show();
 			}
 		},
-		hideContent = function() {
-			$('.brazilian-item-content[data-brazilian-item-id!=' + selectId + ']').hide();
+		hideContent = function(id) {
+			$('.brazilian-item-content[data-brazilian-item-id=' + id + ']').hide();
 		}; 
 
 		$(document).ready(function() {
-			_this = $('ul.brazilian-tab');
-			_init.call(null);
+			if ($('ul.brazilian-tab').length) {
+				_this = $('ul.brazilian-tab');
+				_init.call(null);
+			}
 		});
 
 	$.fn.braziliantabs = function(params) {
@@ -127,10 +124,20 @@
 			params = {};
 		}
 		_this = $(this);
+		var items = _this.children('li');
 		$.extend(defaults, params);
 		_this.addClass('brazilian-tab');
-		_this.children('li').addClass('brazilian-item');
-		_init();
+
+		items.each(function() {
+			$(this).addClass('brazilian-item');
+			if (typeof $(this).attr('id') === 'string') {
+				if (typeof defaults.contents === 'object' 
+				 && defaults.contents[$(this).attr('id')] !== 'undefined') {
+					$(defaults.contents[$(this).attr('id')]).addClass('brazilian-item-content')
+					$(defaults.contents[$(this).attr('id')]).attr('data-brazilian-item-id', $(this).attr('id'));
+				}
+			}
+		});
 
 	}
 });
