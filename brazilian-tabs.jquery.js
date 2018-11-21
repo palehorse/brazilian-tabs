@@ -7,7 +7,7 @@
 })(function( $ ) {
 	var _this, border_width = 1, border_color = '#adadad', defaults = {}, duration = 300,
 		_initUl = function(ul) {
-			ul.css({
+			ul.filter('ul.brazilian-tab').css({
 				'list-style': 'none', 
 				'display': 'flex',
 				'padding': 0,
@@ -45,19 +45,20 @@
 				});
 			});
 		},
-		_init = function() {
-			if (typeof _this.data('brazilian-show') === 'string') {
-				defaults.show = _this.data('brazilian-show');
+		_init = function(ul) {
+			if (typeof ul.data('brazilian-show') === 'string') {
+				defaults.show = ul.data('brazilian-show');
 			}
 
-			_initUl.call(null, _this);
+			_initUl.call(null, ul);
 
-			_this.children('li.brazilian-item').each(function() {
+			ul.children('li.brazilian-item').each(function() {
 				var thisLi = $(this);
 				_initLi.call(null, thisLi);
 			});
 
-			selectLi(_this.find('li.brazilian-item:first'));
+			selectLi(ul.find('li.brazilian-item:first'));
+			ul.show();
 		},
 		selectLi = function(item) {
 			item.css({
@@ -115,7 +116,7 @@
 		$(document).ready(function() {
 			if ($('ul.brazilian-tab').length) {
 				_this = $('ul.brazilian-tab');
-				_init.call(null);
+				_init.call(null, _this);
 			}
 		});
 
@@ -126,8 +127,12 @@
 		_this = $(this);
 		var items = _this.children('li');
 		$.extend(defaults, params);
-		_this.addClass('brazilian-tab');
 
+		if ($(this).hasClass('brazilian-tab')) {
+			return false;
+		}
+
+		_this.addClass('brazilian-tab');
 		items.each(function() {
 			$(this).addClass('brazilian-item');
 			if (typeof $(this).attr('id') === 'string') {
@@ -138,6 +143,6 @@
 				}
 			}
 		});
-
+		_init.call(null, _this);
 	}
 });
