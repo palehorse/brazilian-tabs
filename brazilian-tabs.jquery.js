@@ -76,8 +76,8 @@
 					} else {
 						content = $('.brazilian-item-content[data-brazilian-item-id=' + item.attr('id') + ']');
 					}
-					defaults.onItemSelect.call(null, item, content);
 				}
+				defaults.onItemSelect.call(null, item, content);
 			} else {
 				showContent.call(null, item.attr('id'));
 			}
